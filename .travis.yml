@@ -1,0 +1,31 @@
+os:
+- linux
+sudo:
+- false
+language:
+- python
+before_script:
+- git clone https://github.com/radare/radare2 && cd radare2
+- "./configure --prefix=`pwd`/install > /dev/null"
+- make -s -j2 > /dev/null
+- make install > /dev/null
+- export PATH=${TRAVIS_BUILD_DIR}/radare2/install/bin:${PATH}
+- export LD_LIBRARY_PATH=${TRAVIS_BUILD_DIR}/radare2/install/lib:${LD_LIBRARY_PATH}
+- export LIBR_INCLUDE=${TRAVIS_BUILD_DIR}/radare2/libr/include
+- export LIBR_UTIL=${TRAVIS_BUILD_DIR}/radare2/libr/util
+- export PKG_CONFIG_PATH=${TRAVIS_BUILD_DIR}/radare2/pkgcfg
+- cd ..
+- pip install r2pipe
+- wget http://junk.rada.re/masm32.zip
+- unzip masm32.zip
+- rm masm32.zip
+script:
+- python script.py masm32
+- zip -r masm32.zip masm32.zig.gz
+deploy:
+  provider: releases
+  api_key:
+    secure: OopbBgGkNpp+CBEqP5iV8M+V6zZ1bOp3tSa6djFGHJGivGKo4DIef7KuD5d4hDW7YrBRq9xPyFl8jQ5RAUvb5ONMZRHm42W1k7sS82HXsOg4A4OUxvMj5wxxzVlcMUbp9yIv4+FLSVSgV6fohEmk7t64LIbkF7HbqUu3V91u8mq67MVl/gnvDeqcl58Zog1cnJ91T4gwQeAnBmYmzfo3pB6tvnB/5mL1RuYZ5zVML8vr7XUz6+8AMb+K6uOy768itkCZpbLh7nCFL27FVMu8YYNQKsThohjObwPmnoJrvz1Qntzqk4y0mGjOtiT0GhGMW5H0zfgKAx685LPjYDMkPPMiQnFPyVatkdt69AAoZ9Nq4kDYoy+ufR8AiHlRgzNvSsgX8ITtc+SgVD6q0XbqJliX+3jTibdXjxih7Dq59lVAPvWiKEP2OOQXhOK3ibvV2pfWn3q5mBcD6Sqx5qXdTsxFHo6gbhyj9Z4vcW+OMw/kqgyKEfDKeUUwOCwHfKHLtNRzQRuuB9sGzwtKkiaGuwDQaLRLofU4fSAc8Ri7g9NGsoiyB3CIQ27gpc3tCAzBv3azStX4O8rCpfCqJK0ZgXyPqqMdiCqUQ5pGF/uWDR/jGkk8GZhPRsTCfsnTymBujDxOBBwyvlT4Q5goXfi9rFmuXl1jDyzSyA+/8zzdN4U=
+  file: masm32.zip
+  on:
+    repo: radareorg/radare2-sigs
